@@ -1,0 +1,152 @@
+# クリーンアーキテクチャ層依存チェック（deptrac）
+#
+# docs/clean-architecture.md の依存表を、そのまま機械検知できる形にしたもの。
+# 規約を文章で配るだけでは守られない。CI で落ちる形にして初めてルールになる。
+#
+# 使い方:
+#   composer require --dev qossmic/deptrac
+#   cp examples/depfile.yaml ./depfile.yaml
+#   ./vendor/bin/deptrac analyse --config-file=depfile.yaml
+parameters:
+  paths:
+    - ./app
+    # 共有パッケージの Model/Enum を使う場合はそのパスも含める。
+    # 含め忘れると層の外側として扱われ、依存違反が検知されない。
+    # - ./vendor/your-vendor/shared-models/src
+
+  exclude_files:
+    - '#.*Test\.php#'
+
+  # 既存コードから始める場合、既知の違反はここにベースライン登録してよい。
+  # ただし新たな違反は追加しないこと（減らしていく対象であって逃げ道ではない）。
+  # 空のまま維持できているなら、その層構成は完全準拠している。
+  skip_violations: []
+
+  layers:
+    - name: Controller
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Http\\Controllers\\.*#'
+
+    - name: Request
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Http\\Requests\\.*#'
+
+    - name: Formatter
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Http\\Formatters\\.*#'
+
+    - name: Response
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Http\\Responses\\.*#'
+
+    - name: UseCase
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\UseCases\\.*#'
+
+    - name: Service
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Services\\.*#'
+
+    - name: Helper
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Helpers\\.*#'
+
+    - name: Dto
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\DataTransferObjects\\.*#'
+
+    # Repository と RepositoryInterface は同じディレクトリに同居させる規約のため、
+    # ディレクトリではなく **クラス名サフィックス** で層を判別する。
+    # Interface を先に定義し、実装側は否定後読みで Interface を除外する。
+    - name: RepositoryInterface
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Repositories\\.*RepositoryInterface$#'
+
+    - name: Repository
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Repositories\\.*(?<!Interface)Repository$#'
+
+    - name: Model
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Models\\.*#'
+        # 共有パッケージの Model もこの層に含める
+        # - type: classNameRegex
+        #   value: '#^YourVendor\\Models\\.*#'
+
+    - name: Enum
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Enums\\.*#'
+        # - type: classNameRegex
+        #   value: '#^YourVendor\\Enums\\.*#'
+
+    - name: Exception
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Exceptions\\.*#'
+
+  ruleset:
+    Controller:
+      - UseCase
+      - Request
+      - Formatter
+      - Response
+      - Exception
+      - Enum
+      # Dto を足す場合はここに追記し、理由をコメントで残すこと。
+      # 例: 認証トークン情報を Dto に包んで UseCase/Formatter へ渡すため。
+      # Model 依存を増やさない限り、層の意図は保たれる。
+
+    UseCase:
+      - Service
+      - Dto
+      - Exception
+      - Enum
+
+    Service:
+      - RepositoryInterface
+      - Helper
+      - Dto
+      - Exception
+      - Enum
+
+    Helper:
+      - Enum
+
+    RepositoryInterface:
+      - Dto
+      - Enum
+
+    Repository:
+      - RepositoryInterface
+      - Model
+      - Dto
+      - Enum
+
+    Model:
+      - Enum
+
+    Formatter:
+      - Model
+      - Enum
+
+    Response:
+      - Enum
+
+    # 依存先なし（末端ノード）
+    Request: []
+    Exception:
+      - Enum
+    Dto: []
+    Enum: []
