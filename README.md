@@ -2,6 +2,14 @@
 
 **Laravel のクリーンアーキテクチャ規約を、CI で強制できる形にしたもの。**
 
+<p>
+  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-10+-FF2D20?logo=laravel&logoColor=white">
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.1+-777BB4?logo=php&logoColor=white">
+  <img alt="deptrac" src="https://img.shields.io/badge/deptrac-依存方向をCI検証-2ea44f">
+  <img alt="実績" src="https://img.shields.io/badge/実績-4サービスで既知違反ゼロ-6E56CF">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
+</p>
+
 層構成と依存方向を文章で決めても、レビューで指摘し続けない限り守られません。
 このリポジトリは、**同じルールを deptrac の設定として持ち**、
 CI で落ちる形にすることで規約を維持する構成をまとめたものです。
