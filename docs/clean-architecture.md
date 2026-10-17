@@ -98,6 +98,9 @@ Controller や Formatter が Dto に依存せざるを得ない設計を選ぶ�
 - Repository / RepositoryInterface は**ディレクトリではなくクラス名サフィックスで層判別**する
   （同一 Model 名ディレクトリに同居するため）。`RepositoryInterface` を先に定義し、
   `Repository` は否定後読みで `...RepositoryInterface` を除外する。
+- **deptrac は同じレイヤー内の依存を常に許可する。** そのため「Service 間の相互呼び出し禁止」は
+  depfile.yaml に書いても落ちない。`examples/tools/no-service-to-service.php` を CI で併用する
+  （違反を注入して、deptrac では素通りし、このツールで落ちることを確認済み）。
 - 既存コードから始める場合、既知違反は `skip_violations` にベースライン登録してよい。
   ただし**新たな違反はここに追加しない**。該当箇所を正しい層へ移す。
   ベースラインは「減らしていく対象」であって、恒久的な逃げ道ではない。

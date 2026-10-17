@@ -1,0 +1,29 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# CI は読むだけ。トークンに書き込み権限を持たせない。
+permissions:
+  contents: read
+
+jobs:
+  # depfile.yaml とツールが「規約どおりのコードは通し、違反は落とす」ことを確かめる。
+  # 規約を配っているリポジトリ自身が、規約の効き目を証明できないと説得力が無い。
+  rules:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples
+    steps:
+      # action はコミット SHA で固定する（タグは付け替えられるため）
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: "8.3"
+          tools: composer:v2
+          coverage: none
+      - run: composer install --no-interaction --no-progress
+      - run: ./verify.sh

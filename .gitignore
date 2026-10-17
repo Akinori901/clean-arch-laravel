@@ -1,2 +1,6 @@
 .DS_Store
 vendor/
+
+# examples/ で検証するときの依存
+examples/vendor/
+examples/.deptrac.cache

@@ -4,7 +4,7 @@
 # 規約を文章で配るだけでは守られない。CI で落ちる形にして初めてルールになる。
 #
 # 使い方:
-#   composer require --dev qossmic/deptrac
+#   composer require --dev deptrac/deptrac
 #   cp examples/depfile.yaml ./depfile.yaml
 #   ./vendor/bin/deptrac analyse --config-file=depfile.yaml
 parameters:
@@ -21,6 +21,12 @@ parameters:
   # ただし新たな違反は追加しないこと（減らしていく対象であって逃げ道ではない）。
   # 空のまま維持できているなら、その層構成は完全準拠している。
   skip_violations: []
+
+  # deptrac 2.0.x は analyser の既定値を読み損ね、
+  # "Undefined array key internal_tag" の警告を出す。明示して黙らせる（意味は既定と同じ）。
+  analyser:
+    internal_tag: ~
+    types: [class, function]
 
   layers:
     - name: Controller
