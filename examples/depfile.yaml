@@ -22,6 +22,12 @@ parameters:
   # 空のまま維持できているなら、その層構成は完全準拠している。
   skip_violations: []
 
+  # deptrac 2.0.x は analyser の既定値を読み損ね、
+  # "Undefined array key internal_tag" の警告を出す。明示して黙らせる（意味は既定と同じ）。
+  analyser:
+    internal_tag: ~
+    types: [class, function]
+
   layers:
     - name: Controller
       collectors:
