@@ -4,7 +4,7 @@
 # 規約を文章で配るだけでは守られない。CI で落ちる形にして初めてルールになる。
 #
 # 使い方:
-#   composer require --dev qossmic/deptrac
+#   composer require --dev deptrac/deptrac
 #   cp examples/depfile.yaml ./depfile.yaml
 #   ./vendor/bin/deptrac analyse --config-file=depfile.yaml
 parameters:

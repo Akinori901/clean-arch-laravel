@@ -3,8 +3,8 @@
 **Laravel のクリーンアーキテクチャ規約を、CI で強制できる形にしたもの。**
 
 <p>
-  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-10+-FF2D20?logo=laravel&logoColor=white">
-  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.1+-777BB4?logo=php&logoColor=white">
+  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-12_推奨-FF2D20?logo=laravel&logoColor=white">
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white">
   <img alt="deptrac" src="https://img.shields.io/badge/deptrac-依存方向をCI検証-2ea44f">
   <img alt="実績" src="https://img.shields.io/badge/実績-4サービスで既知違反ゼロ-6E56CF">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
@@ -16,6 +16,7 @@ CI で落ちる形にすることで規約を維持する構成をまとめた�
 
 - [規約本体（docs/clean-architecture.md）](docs/clean-architecture.md) — 層構成・依存表・配置規約
 - [deptrac 設定（examples/depfile.yaml）](examples/depfile.yaml) — 上の依存表をそのまま機械検知する
+- [検証用のサンプルと違反の例（examples/）](examples/) — この規約が実際に効くことを CI で確かめている
 
 実際のマイクロサービス群（Laravel 12・4サービス）で運用し、
 既存モノリスからの移行を経て `skip_violations: []`（既知違反ゼロ）まで到達した構成を、
@@ -54,9 +55,40 @@ PHPStan は型を見ますが、**層の依存方向は見ません**。
 別の仕組みが要ります。
 
 ```bash
-composer require --dev qossmic/deptrac
+composer require --dev deptrac/deptrac
 cp examples/depfile.yaml ./depfile.yaml
 ./vendor/bin/deptrac analyse --config-file=depfile.yaml
+```
+
+> `qossmic/deptrac` は放棄されたパッケージ名です。後継の `deptrac/deptrac` を使ってください。
+
+### deptrac で検知できないもの
+
+**deptrac は同じレイヤー内の依存を常に許可します。** そのため要点の 3 つ目
+「Service 間の相互呼び出し禁止」は、depfile.yaml に書いても落ちません
+（Service → Service はレイヤーをまたがないため）。
+
+これは [`examples/tools/no-service-to-service.php`](examples/tools/no-service-to-service.php)
+（依存ゼロ、PHP 標準の tokenizer だけ）で検知します。deptrac と並べて CI に入れてください。
+
+```bash
+php examples/tools/no-service-to-service.php app/Services
+```
+
+### 規約が効いていることの確認
+
+`examples/` に、規約どおりのサンプル（全層）と典型的な違反 3 つを置いています。
+CI では「サンプルは違反 0 件」「違反を 1 つずつ入れると必ず落ちる」の両方を確かめています。
+
+```bash
+cd examples && composer install && ./verify.sh
+```
+
+```
+== 違反を 1 つずつ入れて、落ちることを確かめる
+ok   DtoFromModel が検知された（... must not depend on App\Models\User (Model)）
+ok   ServiceCallsService が検知された（tools/no-service-to-service.php が検知する ...）
+ok   ServiceUsesModel が検知された（... must not depend on App\Models\User (Model)）
 ```
 
 CI に入れると、規約違反が**レビュー前に**落ちます。
@@ -82,7 +114,9 @@ CI に入れると、規約違反が**レビュー前に**落ちます。
 
 ## 想定していること
 
-- Laravel 10 以降（PHP 8.1 以降の backed enum を前提とした記述があります）
+- Laravel 12 を推奨します（Laravel 10 / 11 はセキュリティサポートが終了しています）。
+  depfile.yaml 自体はバージョンに依存しないので、10 / 11 でも同じように使えます
+- PHP 8.2 以降（Laravel 12 の要件。backed enum を前提とした記述があります）
 - モジュラモノリスにも、マイクロサービス構成にも適用できます
 - 共有パッケージに Model を切り出す構成にも対応しています
   （deptrac の Model 層にその namespace を含める必要があります。詳細は設定ファイル内のコメント）
