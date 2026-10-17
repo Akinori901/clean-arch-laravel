@@ -1,0 +1,12 @@
+{
+    "name": "akinori901/clean-arch-laravel-example",
+    "description": "depfile.yaml を検証するための最小構成（Laravel 本体は不要。deptrac は静的解析のみ）",
+    "type": "project",
+    "license": "MIT",
+    "require-dev": {
+        "deptrac/deptrac": "^2.0"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
