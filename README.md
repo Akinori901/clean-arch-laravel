@@ -6,7 +6,6 @@
   <img alt="Laravel" src="https://img.shields.io/badge/Laravel-12_推奨-FF2D20?logo=laravel&logoColor=white">
   <img alt="PHP" src="https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white">
   <img alt="deptrac" src="https://img.shields.io/badge/deptrac-依存方向をCI検証-2ea44f">
-  <img alt="実績" src="https://img.shields.io/badge/実績-4サービスで既知違反ゼロ-6E56CF">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
 </p>
 
@@ -17,10 +16,6 @@ CI で落ちる形にすることで規約を維持する構成をまとめた�
 - [規約本体（docs/clean-architecture.md）](docs/clean-architecture.md) — 層構成・依存表・配置規約
 - [deptrac 設定（examples/depfile.yaml）](examples/depfile.yaml) — 上の依存表をそのまま機械検知する
 - [検証用のサンプルと違反の例（examples/）](examples/) — この規約が実際に効くことを CI で確かめている
-
-実際のマイクロサービス群（Laravel 12・4サービス）で運用し、
-既存モノリスからの移行を経て `skip_violations: []`（既知違反ゼロ）まで到達した構成を、
-案件固有の情報を除いて一般化したものです。
 
 ## 層構成
 
